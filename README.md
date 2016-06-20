@@ -4,10 +4,10 @@ ZF2 Module. Message broker software implementation
 ### Introduction
 
 Contain parts:
-- Server - get messages from queue and run workers, monitor running workers count
-- Producer - produces messages and sends them to the queue
-- Worker - you background job
-- Storage - messages storage
+- `Server` - get messages from queue and run workers, monitor running workers count
+- `Producer` - produces messages and sends them to the queue
+- `Worker` - you background job
+- `Storage` - messages storage
 
 ### Workflow
 
@@ -25,5 +25,6 @@ Client -> Producer --------->          -------------> Worker
 ```
 
 In the box we provide 2 Servers:
+
 1. Realtime server - uses ReactPHP to run a non-blocking server that accepts messages via a socket and executes them in a background process.
 2. Interval server - check storage for Messages by interval (run by cronjob)
