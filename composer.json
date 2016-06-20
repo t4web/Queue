@@ -20,6 +20,7 @@
     "require": {
         "php": "^5.5 || ^7.0",
 
+        "zendframework/zend-console": "~2.5.0",
         "zendframework/zend-mvc": "~2.5.0",
         "zendframework/zend-servicemanager": "~2.5.0",
 
