@@ -20,6 +20,11 @@
     "require": {
         "php": "^5.5 || ^7.0",
 
+        "zendframework/zend-mvc": "~2.5.0",
+        "zendframework/zend-servicemanager": "~2.5.0",
+
+        "symfony/process": "~3.1.0",
+
         "react/socket": "~0.4.2"
     },
     "require-dev" : {
