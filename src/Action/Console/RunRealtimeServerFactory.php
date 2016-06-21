@@ -5,6 +5,7 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use React\EventLoop\Factory as EventLoopFactory;
 use React\Socket\Server as SocketServer;
+use Symfony\Component\Process\Process;
 
 class RunRealtimeServerFactory implements FactoryInterface
 {
@@ -14,10 +15,12 @@ class RunRealtimeServerFactory implements FactoryInterface
 
         $loop = EventLoopFactory::create();
 
+        $config = $serviceLocator->get('Config');
+
         return new RunRealtimeServer(
             $loop,
             new SocketServer($loop),
-            new Process('ls')
+            $config['t4web-queue']['queues']
         );
     }
 }
