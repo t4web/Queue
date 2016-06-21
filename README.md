@@ -28,3 +28,38 @@ In the box we provide 2 Servers:
 
 1. Realtime server - uses ReactPHP to run a non-blocking server that accepts messages via a socket and executes them in a background process.
 2. Interval server - check storage for Messages by interval (run by cronjob)
+
+### Configuring
+
+Just add in you config:
+
+```php
+'t4web-queue' => [
+
+     'realtime-server' => [
+         'enabled' => true,
+         'hostname' => 'localhost',
+         'port' => 4000,
+     ],
+
+     'queues' => [
+
+         // Queue name
+         'test-engine' => [
+
+             // Handler class
+             'handler' => EchoWorker::class,
+
+             // count workers, optional, default 1
+             'worker-count' => 1,
+
+             // You can limit the amount of time a process takes to complete by setting a timeout (in seconds)
+             // optional, default 300
+             'timeout' => 300,
+
+             // optional, default 0
+             'debug-enable' => 1,
+         ],
+     ],
+ ];
+```
