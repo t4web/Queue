@@ -63,3 +63,9 @@ Just add in you config:
      ],
  ];
 ```
+
+### Runing
+
+```shell
+$ php public/index.php queue realtime-server
+```
