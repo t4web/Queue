@@ -13,6 +13,7 @@ class CriteriaValidator extends EmptyValidator
     {
         $data = parent::getValid();
 
+        $valid = [];
         foreach ($data as $name => $value) {
             if (!empty($value)) {
                 $valid[$name] = $value;
