@@ -1,0 +1,25 @@
+<?php
+/** @var \Zend\View\Model\ViewModel $viewModel */
+$viewModel = $this->viewModel()->getCurrent();
+$trHeadViews = $viewModel->getChildrenByCaptureTo('table-head-row');
+$trBodyViews = $viewModel->getChildrenByCaptureTo('table-body-row');
+?>
+<table class="table">
+    <thead>
+        <?php foreach ($trHeadViews as $view) echo $this->render($view); ?>
+    </thead>
+    <tbody>
+        <?php foreach ($trBodyViews as $view) echo $this->render($view); ?>
+    </tbody>
+</table>
+
+<?php $this->inlineScript()->captureStart();
+echo <<<JS
+$(function () {
+    $('.btn-show-details').click(function() {
+    console.log(111);
+        $(this).closest('tr').next().slideToggle();
+    });
+});
+JS;
+$this->inlineScript()->captureEnd(); ?>

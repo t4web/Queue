@@ -1,0 +1,12 @@
+<?php
+/** @var \Zend\View\Model\ViewModel $viewModel */
+$viewModel = $this->viewModel()->getCurrent();
+$align = $viewModel->getVariable('align', 'left');
+$startedDt = $viewModel->getVariable('startedDt', '~');
+$finishedDt = $viewModel->getVariable('finishedDt', '~');
+$options = json_decode($viewModel->getVariable('options'), true);
+?>
+<td style="text-align: <?=$align?>;">
+    <?= $options['handler']; ?>
+    <div class="text-xs text-default">started: <?= $startedDt ?> | finished: <?= $finishedDt ?></div>
+</td>

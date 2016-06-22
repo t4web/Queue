@@ -1,0 +1,17 @@
+<?php
+/** @var \Zend\View\Model\ViewModel $viewModel */
+$viewModel = $this->viewModel()->getCurrent();
+$color = $viewModel->getVariable('color', 'default');
+$size = $viewModel->getVariable('size');
+if ($size !== null) {
+    $size = "btn-$size";
+}
+$icon = $viewModel->getVariable('icon');
+$text = $viewModel->getVariable('text', 'Default');
+?>
+<button class="btn btn-show-details btn-<?= $color ?> <?= $size ?>">
+    <?php if ($icon !== null): ?>
+        <i class="fa fa-<?= $icon ?>"></i>
+    <?php endif; ?>
+    <?= $text ?>
+</button>

@@ -9,7 +9,7 @@ class QueueMessage extends Entity
     const STATUS_NEW = 1;
     const STATUS_IN_PROCESS = 2;
     const STATUS_COMPLETED = 3;
-    const STATUS_FAILED = 3;
+    const STATUS_FAILED = 4;
 
     /**
      * @var string
@@ -93,10 +93,27 @@ class QueueMessage extends Entity
     }
 
     /**
+     * @return int
+     */
+    public function getExecutionTime()
+    {
+        return strtotime($this->finishedDt) - strtotime($this->startedDt);
+    }
+
+    /**
      * @return array
      */
     public function getMessage()
     {
         return json_decode($this->message, true);
     }
+
+    /**
+     * @return string
+     */
+    public function getStartedDt()
+    {
+        return $this->startedDt;
+    }
+
 }

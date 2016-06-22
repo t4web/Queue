@@ -1,0 +1,19 @@
+<?php
+/** @var \Zend\View\Model\ViewModel $viewModel */
+$viewModel = $this->viewModel()->getCurrent();
+$tdViews = $viewModel->getChildrenByCaptureTo('table-td');
+$row = $viewModel->getVariable('row');
+?>
+<tr><?php foreach ($tdViews as $view) echo $this->render($view); ?></tr>
+<tr style="background: #edf0f1 !important;display:none;">
+    <td>&nbsp;</td>
+    <td colspan="4">
+        <div class="text-semibold">Options</div>
+        <pre><?=json_encode(json_decode($row['options']), JSON_PRETTY_PRINT);?></pre>
+        <div class="text-semibold">Message</div>
+        <pre><?=json_encode(json_decode($row['message']), JSON_PRETTY_PRINT);?></pre>
+        <div class="text-semibold">Output</div>
+        <pre><?=$row['output']?></pre>
+    </td>
+    <td>&nbsp;</td>
+</tr>
