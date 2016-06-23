@@ -85,7 +85,19 @@ class RunRealtimeServer extends AbstractActionController
                     if ($process->isRunning()) {
                         $processes[$queueName][] = $process;
                     } else {
-                        $this->debug("**Debug: " . $process->getOutput(), $this->getQueueConfig($queueName));
+                        $output = $process->getOutput();
+
+                        if (!empty($output)) {
+                            $this->debug("process output: ", $this->getQueueConfig($queueName));
+                            echo $output . PHP_EOL;
+                        }
+
+                        $output = $process->getErrorOutput();
+
+                        if (!empty($output)) {
+                            $this->debug("process error: " , $this->getQueueConfig($queueName));
+                            echo $output . PHP_EOL;
+                        }
                     }
                 }
             }
@@ -131,7 +143,17 @@ class RunRealtimeServer extends AbstractActionController
                     if ($process->isRunning()) {
                         $processes[$queueName][] = $process;
                     } else {
-                        $this->debug("**Debug: " . $process->getOutput(), $queueConfig);
+                        $output = $process->getOutput();
+
+                        if (!empty($output)) {
+                            $this->debug("process output: " . $output, $queueConfig);
+                        }
+
+                        $output = $process->getErrorOutput();
+
+                        if (!empty($output)) {
+                            $this->debug("process error: " . $output, $this->getQueueConfig($queueName));
+                        }
                     }
                 }
             }
