@@ -85,19 +85,7 @@ class RunRealtimeServer extends AbstractActionController
                     if ($process->isRunning()) {
                         $processes[$queueName][] = $process;
                     } else {
-                        $output = $process->getOutput();
-
-                        if (!empty($output)) {
-                            $this->debug("process output: ", $this->getQueueConfig($queueName));
-                            echo $output . PHP_EOL;
-                        }
-
-                        $output = $process->getErrorOutput();
-
-                        if (!empty($output)) {
-                            $this->debug("process error: " , $this->getQueueConfig($queueName));
-                            echo $output . PHP_EOL;
-                        }
+                        $this->printProcessOutput($queueName, $process);
                     }
                 }
             }
@@ -107,6 +95,23 @@ class RunRealtimeServer extends AbstractActionController
 
         $this->socket->listen(4000);
         $this->loop->run();
+    }
+
+    private function printProcessOutput($queueName, Process $process)
+    {
+        $output = $process->getOutput();
+
+        if (!empty($output)) {
+            $this->debug("process output: ", $this->getQueueConfig($queueName));
+            $this->debug($output, $this->getQueueConfig($queueName), '');
+        }
+
+        $output = $process->getErrorOutput();
+
+        if (!empty($output)) {
+            $this->debug("process error: " , ['debug-enable' => 1]);
+            $this->debug($output, ['debug-enable' => 1], '');
+        }
     }
 
     private function getQueueConfig($queueName)
@@ -143,17 +148,7 @@ class RunRealtimeServer extends AbstractActionController
                     if ($process->isRunning()) {
                         $processes[$queueName][] = $process;
                     } else {
-                        $output = $process->getOutput();
-
-                        if (!empty($output)) {
-                            $this->debug("process output: " . $output, $queueConfig);
-                        }
-
-                        $output = $process->getErrorOutput();
-
-                        if (!empty($output)) {
-                            $this->debug("process error: " . $output, $this->getQueueConfig($queueName));
-                        }
+                        $this->printProcessOutput($queueName, $process);
                     }
                 }
             }
@@ -201,10 +196,10 @@ class RunRealtimeServer extends AbstractActionController
         return $process;
     }
 
-    private function debug($msg, $queueConfig)
+    private function debug($msg, $queueConfig, $prefix = "**Debug: ")
     {
         if ($queueConfig['debug-enable']) {
-            echo "**Debug: " . $msg . PHP_EOL;
+            echo $prefix . $msg . PHP_EOL;
         }
     }
 
