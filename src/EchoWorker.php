@@ -2,7 +2,7 @@
 namespace T4web\Queue;
 
 
-class EchoWorker implements Worker
+class EchoWorker implements WorkerInterface
 {
     public function handle(array $data)
     {

@@ -2,7 +2,7 @@
 namespace T4web\Queue;
 
 
-interface Worker
+interface WorkerInterface
 {
     public function handle(array $data);
 }

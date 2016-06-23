@@ -5,7 +5,7 @@ use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Mvc\MvcEvent;
 use Zend\Console\Request as ConsoleRequest;
 use T4webDomainInterface\Infrastructure\RepositoryInterface;
-use T4web\Queue\Worker as WorkerInterface;
+use T4web\Queue\WorkerInterface;
 use T4web\Queue\Domain\QueueMessage\QueueMessage;
 
 class Worker extends AbstractActionController
