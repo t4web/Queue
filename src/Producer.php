@@ -72,22 +72,41 @@ class Producer
         $this->messageRepository->add($queueMessage);
 
         if ($this->config['realtime-server']['enabled']) {
-            $fp = @stream_socket_client(
-                sprintf('tcp://%s:%d', $this->config['realtime-server']['hostname'], $this->config['realtime-server']['port']),
-                $errno,
-                $errstr,
-                30
-            );
-            if (!$fp) {
-                throw new \RuntimeException(sprintf('%s (%s)', $errstr, $errno));
-            }
-
-            fwrite($fp, Json::encode(array(
+            $this->sendMessage([
                 'queueName' => $queueName,
                 'messageId' => $queueMessage->getId(),
-            )));
-
-            fclose($fp);
+            ]);
         }
+    }
+
+    private function sendMessage(array $message)
+    {
+        $fp = @stream_socket_client(
+            sprintf('tcp://%s:%d', $this->config['realtime-server']['hostname'], $this->config['realtime-server']['port']),
+            $errno,
+            $errstr,
+            30
+        );
+        if (!$fp) {
+            throw new \RuntimeException(sprintf('%s (%s)', $errstr, $errno));
+        }
+
+        fwrite($fp, Json::encode($message));
+
+        fclose($fp);
+    }
+
+    public function isEngineWorked()
+    {
+        try {
+            $this->sendMessage([
+                'queueName' => 'checkEngine',
+                'command' => 'check'
+            ]);
+        } catch (\RuntimeException $e) {
+            return false;
+        }
+
+        return true;
     }
 }

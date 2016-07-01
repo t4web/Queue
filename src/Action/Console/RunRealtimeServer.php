@@ -50,7 +50,6 @@ class RunRealtimeServer extends AbstractActionController
 
     public function onDispatch(MvcEvent $e)
     {
-
         $this->socket->on('connection', function (ConnectionInterface $conn) {
             $conn->on('data', function ($dataRaw) use ($conn) {
                 $dataRaw = trim($dataRaw);
