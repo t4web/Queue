@@ -57,7 +57,7 @@ class RunRealtimeServer extends AbstractActionController
                 $data = Json::decode($dataRaw, Json::TYPE_ARRAY);
 
                 if (!isset($this->config[$data['queueName']])) {
-                    echo "Bad queue name: " . $data['queueName'];
+                    $this->debug("Bad queue name: " . $data['queueName'], ['debug-enable' => 1]);
                     return;
                 }
 
