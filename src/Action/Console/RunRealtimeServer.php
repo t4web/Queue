@@ -1,6 +1,8 @@
 <?php
 namespace T4web\Queue\Action\Console;
 
+use SplQueue;
+use SplObjectStorage;
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\Mvc\MvcEvent;
 use Zend\Json\Json;
@@ -23,7 +25,7 @@ class RunRealtimeServer extends AbstractActionController
     private $loop;
 
     /**
-     * @var Process
+     * @var SplObjectStorage[]
      */
     private $processes = [];
 
@@ -36,6 +38,11 @@ class RunRealtimeServer extends AbstractActionController
      * @var array
      */
     private $queueConfigs;
+
+    /**
+     * @var SplQueue[]
+     */
+    private $queues = [];
 
     public function __construct(
         StreamSelectLoop $loop,
@@ -55,6 +62,99 @@ class RunRealtimeServer extends AbstractActionController
                 $dataRaw = trim($dataRaw);
 
                 $data = Json::decode($dataRaw, Json::TYPE_ARRAY);
+
+                if ($data['queueName'] == 'checkEngine') {
+                    return;
+                }
+
+                if (!isset($this->config[$data['queueName']])) {
+                    $this->debug("Bad queue name: " . $data['queueName'], ['debug-enable' => 1]);
+                    return;
+                }
+
+                $queueName = $data['queueName'];
+
+                if (!isset($this->queues[$queueName])) {
+                    $this->queues[$queueName] = new SplQueue();
+                }
+
+                $this->queues[$queueName]->enqueue([
+                    'data' => $data,
+                    'dataRaw' => $dataRaw,
+                ]);
+
+                $conn->close();
+            });
+        });
+
+        $this->loop->addPeriodicTimer(0.01, function($timer) {
+            $queueNames = array_keys($this->queues);
+
+            foreach ($queueNames as $queueName) {
+                if ($this->queues[$queueName]->count() == 0) {
+                    continue;
+                }
+
+                $queueConfig = $this->getQueueConfig($queueName);
+
+                if (!isset($this->processes[$queueName])) {
+                    $this->processes[$queueName] = new SplObjectStorage();
+                }
+
+                if ($this->processes[$queueName]->count() >= $queueConfig['worker-count']) {
+                    return;
+                }
+
+                $data = $this->queues[$queueName]->dequeue();
+
+                $process = $this->handleData($data['data'], $data['dataRaw'], $this->getQueueConfig($queueName));
+
+                if (!$process) {
+                    return;
+                }
+
+                $this->processes[$queueName]->attach($process);
+            }
+        });
+
+        $this->loop->addPeriodicTimer(0.01, function($timer) {
+            $queueNames = array_keys($this->queues);
+
+            foreach ($queueNames as $queueName) {
+                if (!isset($this->processes[$queueName])) {
+                    $this->processes[$queueName] = new SplObjectStorage();
+                }
+
+                $processes = new SplObjectStorage();
+
+                /** @var Process $process */
+                foreach ($this->processes[$queueName] as $process) {
+                    if ($process->isRunning()) {
+                        $processes->attach($process);
+                    } else {
+                        $this->printProcessOutput($queueName, $process);
+                    }
+                }
+
+                $this->processes[$queueName] = $processes;
+            }
+        });
+
+        $this->socket->listen(4000);
+        $this->loop->run();
+    }
+
+    public function onDispatch2(MvcEvent $e)
+    {
+        $this->socket->on('connection', function (ConnectionInterface $conn) {
+            $conn->on('data', function ($dataRaw) use ($conn) {
+                $dataRaw = trim($dataRaw);
+
+                $data = Json::decode($dataRaw, Json::TYPE_ARRAY);
+
+                if ($data['queueName'] == 'checkEngine') {
+                    return;
+                }
 
                 if (!isset($this->config[$data['queueName']])) {
                     $this->debug("Bad queue name: " . $data['queueName'], ['debug-enable' => 1]);
@@ -160,10 +260,9 @@ class RunRealtimeServer extends AbstractActionController
      * @param array $data
      * @param $dataRaw
      * @param array $queueConfig
-     * @param ConnectionInterface $connection
      * @return Process|void
      */
-    public function handleData(array $data, $dataRaw, array $queueConfig, ConnectionInterface $connection)
+    public function handleData(array $data, $dataRaw, array $queueConfig)
     {
         $this->debug("Queue config: " . Json::encode($queueConfig), $queueConfig);
         $this->debug("Income data: " . $dataRaw, $queueConfig);
@@ -189,8 +288,6 @@ class RunRealtimeServer extends AbstractActionController
         } catch (ProcessTimedOutException $e) {
             echo "Stopped by timeout" . PHP_EOL;
         }
-
-        $connection->close();
 
         return $process;
     }
